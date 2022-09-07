@@ -1,49 +1,47 @@
-#include "holberton.h"
+#include "shell.h"
 /**
- * execute_proc - similar to puts in C
- * @cmd: a pointer the integer we want to set to 402
- *
- * Return: int
+ * execute - execute a command with its entire path variables.
+ * @data: a pointer to the program's data
+ * Return: If sucess returns zero, otherwise, return -1.
  */
-void execute_proc(char **cmd)
+int execute(data_of_program *data)
 {
+	int retval = 0, status;
+	pid_t pidd;
 
-	char *parametro = (*(cmd + 1));
-	char *s, *slash = "/";
-	char *o;
+	/* check for program in built ins */
+	retval = builtins_list(data);
+	if (retval != -1)/* if program was found in built ins */
+		return (retval);
 
-	char *vartoprint = *cmd;
-	char *argv[4];
-
-	if ((access(cmd[0], F_OK) == 0))
-	{
-		argv[0] = cmd[0];
-		argv[1] = parametro;
-		argv[2] = ".";
-		argv[3] = NULL;
-
-		if (execve(argv[0], argv, NULL) == -1)
-		{
-			perror("Error");
-		}
+	/* check for program file system */
+	retval = find_program(data);
+	if (retval)
+	{/* if program not found */
+		return (retval);
 	}
 	else
-	{
-		o = find_command(vartoprint);
-
-		slash = str_concat(o, slash);
-
-		s = str_concat(slash, *cmd);
-
-		argv[0] = s;
-		argv[1] = parametro;
-		argv[2] = ".";
-		argv[3] = NULL;
-
-		if (execve(argv[0], argv, NULL) == -1)
-		{
-			perror("Error");
+	{/* if program was found */
+		pidd = fork(); /* create a child process */
+		if (pidd == -1)
+		{ /* if the fork call failed */
+			perror(data->command_name);
+			exit(EXIT_FAILURE);
+		}
+		if (pidd == 0)
+		{/* I am the child process, I execute the program*/
+			retval = execve(data->tokens[0], data->tokens, data->env);
+			if (retval == -1) /* if error when execve*/
+				perror(data->command_name), exit(EXIT_FAILURE);
+		}
+		else
+		{/* I am the father, I wait and check the exit status of the child */
+			wait(&status);
+			if (WIFEXITED(status))
+				errno = WEXITSTATUS(status);
+			else if (WIFSIGNALED(status))
+				errno = 128 + WTERMSIG(status);
 		}
 	}
+	return (0);
 }
-
