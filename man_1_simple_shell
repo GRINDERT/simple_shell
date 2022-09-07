@@ -1,103 +1,91 @@
-.TH man 1 "20 November 2020" "0.20" "HSH man page"
+.TH man_1_simple_shell "9th April 2022" "v 00.1" "Simple Shell"
+0;136;0c
 .SH NAME
-.B hsh 
-- Simple Shell Studying purpose Holberton School
+.B hsh - simple command line interpreter (UNIX)
+
 .SH SYNOPSIS
-.B ./hsh 
-[command] [options] [FILE]
-.SH COPYRIGHT
-.B hsh 
-is Copyright (C) Ahmed Belhaj  and licensed under the MIT license.
+\fBhsh\fR [command] [argument...]
+
 .SH DESCRIPTION
-.B hsh 
-(Simple Shell) is an end of semester project for students at Holberton School where we expore, 
-understand and build a working functional simple shell program.
-.B Overview
+.br
+hsh is a simple command line interpreter that reads commands from the
+terminal (standard input) and executes them.
 
-The simple shell is a simplified iteration of a command line interpreter, similar to 
-.B bash or 
-.B dash. 
-.I FORMAT [ARGUMENT]...
-.SH OPTIONS
-.B hsh
-operates in both 
-.I interactive 
-and 
-.I non-interactive
- mode. The user may initiate 
-.B simple shell
-and begin working or initate 
-.B simple shell
-using commands meant to be run by the program.
-.SH ARGUMENTS
-The first argument, argument 0 is understood to be the command to be run by 
-.B simple shell
-and arguments following as modifiers or options.
-.SH INVOCATION
-.B hsh
-may be invoked with the same functionality in 
-.I interactive 
-or 
-.I non-interactive 
-mode.  The user may quit the program by typing "exit", "Ctrl + D",  on the command line.
-When the program quits or a command has been executed, 
-.B simple shell 
-returns with a new prompt: "$ "
+.B Invocation
+.br
+The shell can be invoked interactively and non-interactively.
+.br
+The interactive shell reads commands from user input on a \fbtty\fR, and will
+prompt the user before each command with $ when ready.
+.br
+The non-interactive shell will read commands and and executes in order given.
 
-.B Example
-.IP
+.B Commands
+.br
+The shell reads the given input and splits it into tokens if the input is more
+than one word. The first word is recognised as the command and any additional
+words are recognised as arguments to the command. The shell then performs the
+following actions:
+.br
 
-$./hsh
+1. Compares to a list of built-ins. If the word matches a built-in, the
+corresponding function is executed. A new line with \fB$\fR follows the
+execution, waiting for a new command (unless the ‘\fbexit\fR’ function is run,
+which exits the parent process).
+.br
 
-$pwd
+2. Checks if the first word starts with a ‘\fB/\fR’. If it starts with a
+‘\fB/\fR’, the shell goes directly to the path (all the characters following the
+‘\fB/\fR’ and before the delimiter (space) and executes the command. If the path
+is not found, an error message is displayed.
+.br
 
-Username@your-regular-prompt:~$
+3. If the word does not start with a ‘\fB/\fR’, the shell lists all paths,
+splits the string into tokens with delimiter ‘\fB:\fR’ and concatenates the
+command onto the end of each directory to find an existing executable. If the
+executable is found, the shell forks into a child process and executes the
+command along with any arguments. A new line with \fB$\fR follows the executed
+command, and waits for a new command.
 
-$
+.B Built-in Commands
+.br
+\fBcd\fR
+.br
+- changes the current directory to given path. If no argument is given,
+assumed directory is $HOME
+.br
+\fBenv\fR
+.br
+- prints all environment variables
+.br
+\fBexit\fR
+.br
+- exits parent process (exits shell)
+.br
+\fBhelp\fR
+.br
+- displays help page for builtins in stdout.
+Example: \fBhelp env\fR will open up the help page for env built in.
+.br
+\fBsetenv\fR
+.br
+- adds a variable name to the environment.
+.br
+\fBunsetenv\fR
+.br
+- removes a variable name from the environment.
 
-$/bin/pwd
+.B Signals
+.br
+In interactive mode, Ctrl + C will end the child process and Ctrl + D ends the
+parent process.
 
-Username@your-regular-prompt:~$
-$
-
-.SH RESERVED WORDS
-.B exit: 
-quits the program, exits the shell.
-
-.B env: 
-prints the environment variables
-
-.SH HISTORY
-The 
-.B history 
-built-in displays the history list, one command per line, preceded with line numbers, starting with 0. On exit the entire history is written to a file named
-.I simple_shell_history
-in the 
-.I $HOME
-directory.
-.SH SHELL BUILTIN COMMANDS
-The commands 
-.B exit
-,
-.B env
-,
-.B help
-and
-.B echo
-are handled automatically by 
-.B hsh
+.B Exit Status
+.br
+Exits with a return of 0.
 
 .SH SEE ALSO
-.I sh(1)
-,
-.I bash(1)
-,
-.I _printf(3)
+sh
 
-.SH BUGS
-No Known bug , please 
-Report 
-.B hsh
-bugs to https://github.com/Theemiss/simple_shell/issues
-.SH AUTHOR
-Ahmed Belhaj
+.SH AUTHORS
+James Honey, Karoline Silva, Farah McCurdy

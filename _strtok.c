@@ -1,64 +1,53 @@
-#include "shell.h"
-/**
- * check_delim - Checks If A Character Match Any Char *
- * @c: Character To Check
- * @str: String To Check
- * Return: 1 Succes, 0 Failed
- */
-unsigned int check_delim(char c, const char *str)
-{
-	unsigned int i;
-
-	for (i = 0; str[i] != '\0'; i++)
-	{
-		if (c == str[i])
-			return (1);
-	}
-	return (0);
-}
+#include <stdlib.h>
+#include <stdio.h>
 
 /**
- * _strtok - Token A String Into Token (strtrok)
- * @str: String
- * @delim: Delimiter
- * Return: Pointer To The Next Token Or NULL
+ * _strtok - returns a pointer to the next token in a string, as defined by
+ * by the delim string.
+ * @string: the string to be parsed
+ * @delim: an immutable string containing token delimiters
+ * Return: a pointer to the first or next token
  */
-char *_strtok(char *str, const char *delim)
+char *_strtok(char *string, const char *delim)
 {
-	static char *ts;
-	static char *nt;
-	unsigned int i;
+	int i = 0;
+	int j = 0;
+	static char *ptr = "\0";
 
-	if (str != NULL)
-		nt = str;
-	ts = nt;
-	if (ts == NULL)
+	if (string == NULL && *ptr == '\0')
 		return (NULL);
-	for (i = 0; ts[i] != '\0'; i++)
+
+	if (string == NULL)
+		string = ptr;
+
+	while (string[i] != '\0' && delim[j] != '\0')
 	{
-		if (check_delim(ts[i], delim) == 0)
-			break;
+		if (string[i] == delim[j])
+		{
+			string++;
+			j = 0;
+		}
+		else
+			j++;
 	}
-	if (nt[i] == '\0' || nt[i] == '#')
+
+	while (string[i] != '\0')
 	{
-		nt = NULL;
-		return (NULL);
+		j = 0;
+		while (delim[j] != '\0')
+		{
+			if (string[i] == delim[j])
+			{
+				string[i] = '\0';
+				ptr = string + i + 1;
+				return (string);
+			}
+			j++;
+		}
+		i++;
 	}
-	ts = nt + i;
-	nt = ts;
-	for (i = 0; nt[i] != '\0'; i++)
-	{
-		if (check_delim(nt[i], delim) == 1)
-			break;
-	}
-	if (nt[i] == '\0')
-		nt = NULL;
-	else
-	{
-		nt[i] = '\0';
-		nt = nt + i + 1;
-		if (*nt == '\0')
-			nt = NULL;
-	}
-	return (ts);
+
+	ptr = string + i;
+
+	return (string);
 }
